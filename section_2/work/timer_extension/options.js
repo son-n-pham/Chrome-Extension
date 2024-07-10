@@ -3,5 +3,12 @@ const saveBtn = document.getElementById("save-btn");
 
 saveBtn.addEventListener("click", () => {
     const name = nameInput.value;
-    console.log(name);
+    const notificationTime = timeInput.value;
+    chrome.storage.sync.set({ name, notificationTime });
+    console.log(`Name: ${name}`);
+    console.log('Notification time: ' + notificationTime);
+});
+
+chrome.storage.sync.get(["name"], (res) => {
+    nameInput.value = res.name ?? "???";
 });
