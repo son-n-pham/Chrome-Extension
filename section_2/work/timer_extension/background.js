@@ -2,11 +2,17 @@ chrome.alarms.create({
   periodInMinutes: 1 / 60,
 });
 
-let timeLapsed;
+let notificationTime;
 
 chrome.alarms.onAlarm.addListener(alarm => {
   chrome.storage.sync.get(['notificationTime'], res => {
-    timeLapsed = res.notificationTime ?? 10;
+    notificationTime = res.notificationTime;
+  });
+
+  chrome.storage.local.get(['isRunning'], res => {
+    if (!res.isRunning) {
+      return;
+    }
   });
 
   chrome.storage.local.get(['timer'], res => {
@@ -20,14 +26,14 @@ chrome.alarms.onAlarm.addListener(alarm => {
       text: `${time + 1}`,
     });
 
-    if (time % timeLapsed === 0) {
+    if (time % notificationTime === 0) {
       chrome.notifications.create('notification-id', {
         type: 'basic',
         iconUrl: 'icon.png',
         title: 'Chrome Timer Extension',
-        message: `${timeLapsed} seconds has passed!`,
+        message: `${notificationTime} seconds has passed!`,
       });
-      console.log(`notificationTime is: {timeLapsed}`);
+      console.log(`notificationTime is: ${notificationTime}`);
     }
 
     console.log(`From background: ${time + 1}`);
