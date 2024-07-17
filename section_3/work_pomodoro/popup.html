@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Pomodoro Timer</title>
+    <meta
+      name="description"
+      content="Pomodo Timer to help you focus and get things done"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <h1>Pomodoro Timer</h1>
+    <img src="icon.png" />
+    <h2 id="time">00:00</h2>
+    <button id="start">Start Timer</button>
+    <button id="stop">Stop Timer</button>
+    <button id="reset">Reset Timer</button>
+    <button id="add-task">Add Task</button>
+    <div>
+      <input type="text" id="task-input" />
+      <input type="button" value="X" />
+      <div id="task-list"></div>
+    </div>
+    <!--[if lt IE 7]>
+      <p class="browsehappy">
+        You are using an <strong>outdated</strong> browser. Please
+        <a href="#">upgrade your browser</a> to improve your experience.
+      </p>
+    <![endif]-->
+
+    <script src="popup.js" async defer></script>
+  </body>
+</html>
