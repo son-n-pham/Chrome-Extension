@@ -1,10 +1,67 @@
 const addTaskBtn = document.getElementById('add-task');
 const taskInputEl = document.getElementById('task-input');
 const taskListEl = document.getElementById('task-list');
-const timerEl = document.getElementById('timer');
-const startTimerBtn = document.getElementById('start-timer-btn');
-const stopTimerBtn = document.getElementById('stop-timer-btn');
+const timeEl = document.getElementById('time');
+const timerBtn = document.getElementById('timer-btn');
 const resetTimerBtn = document.getElementById('reset-timer-btn');
+
+let isRunning = false;
+let time = 0;
+
+function updateDisplay() {
+  const minutes = Math.floor(time / 60);
+  const seconds = time % 60;
+  const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  timeEl.textContent = timeString;
+}
+
+function startTimer() {
+  chrome.runtime.sendMessage({ action: 'startTimer' });
+  isRunning = true;
+  timerBtn.textContent = 'Stop';
+}
+
+function stopTimer() {
+  chrome.runtime.sendMessage({ action: 'stopTimer' });
+  isRunning = false;
+  timerBtn.textContent = 'Start';
+}
+
+function resetTimer() {
+  chrome.runtime.sendMessage({ action: 'resetTimer' });
+  time = 0;
+  updateDisplay();
+}
+
+timerBtn.addEventListener('click', () => {
+  if (isRunning) {
+    stopTimer();
+  } else {
+    startTimer();
+  }
+});
+
+resetTimerBtn.addEventListener('click', resetTimer);
+
+// Update time display every second
+setInterval(() => {
+  chrome.runtime.sendMessage({ action: 'getTime' }, (response) => {
+    time = response.time;
+    isRunning = response.isRunning;
+    updateDisplay();
+    timerBtn.textContent = isRunning ? 'Stop' : 'Start';
+  });
+}, 1000);
+
+// Initialize popup state
+chrome.runtime.sendMessage({ action: 'getTime' }, (response) => {
+  time = response.time;
+  isRunning = response.isRunning;
+  updateDisplay();
+  timerBtn.textContent = isRunning ? 'Stop' : 'Start';
+});
+
+// ... (rest of your popup.js code for task list management)
 
 addTaskBtn.addEventListener('click', () => {
   const taskText = taskInputEl.value.trim();
@@ -27,10 +84,9 @@ function addTaskToTaskList(taskText) {
   }
 
   chrome.storage.sync.get(['TaskList'], result => {
-    const { TaskList } = result;
+    let { TaskList } = result;
     if (!TaskList) {
-      console.error('TaskList is null or undefined');
-      return;
+      TaskList = []; // Initialize TaskList if it doesn't exist
     }
 
     const newTaskList = [...TaskList];
@@ -52,11 +108,7 @@ function addTaskToTaskList(taskText) {
  */
 function renderTaskList() {
   chrome.storage.sync.get(['TaskList'], result => {
-    const taskList = result?.TaskList;
-    if (!taskList) {
-      taskListEl.textContent = '';
-      return;
-    }
+    const taskList = result?.TaskList || []; // Handle empty TaskList gracefully
     taskListEl.textContent = '';
     taskList.forEach((task, index) => {
       const taskDiv = document.createElement('div');
@@ -83,6 +135,7 @@ function renderTaskList() {
     });
   });
 }
+
 function deleteTask(index) {
   chrome.storage.sync.get(['TaskList'], ({ TaskList }) => {
     const newTaskList = TaskList.filter((_, i) => i !== index);

@@ -13,5 +13,20 @@
     "default_title": "Pomodoro Timer",
     "default_popup": "popup.html"
   },
-  "permissions": ["storage", "alarms", "notifications"]
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": [
+    "storage",
+    "notifications",
+    "offscreen"
+  ],
+  "web_accessible_resources": [{
+    "resources": [
+      "music/*.mp3",
+      "songs.json",
+      "offscreen.html"
+    ],
+    "matches": ["<all_urls>"]
+  }]
 }
