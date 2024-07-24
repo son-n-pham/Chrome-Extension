@@ -1,21 +1,52 @@
-const timeElement = document.getElementById("time");
-const nameElement = document.getElementById("name");
-const timerElement = document.getElementById("timer");
+const timeElement = document.getElementById('time');
+const nameElement = document.getElementById('name');
+const timerElement = document.getElementById('timer');
+const forDebugElement = document.getElementById('for-debug');
+const startBtn = document.getElementById('start');
+const stopBtn = document.getElementById('stop');
+const resetBtn = document.getElementById('reset');
 
-chrome.action.setBadgeText({ text: "TIME" });
-
-chrome.storage.sync.get(["name"], ({ name = "???" }) => {
-   nameElement.textContent = `Your name is: ${name}`;
+startBtn.addEventListener('click', () => {
+  chrome.storage.local.set({ isRunning: true });
 });
 
-function updateTimeElements() {
-   const currentTime = new Date().toLocaleTimeString();
-   timeElement.textContent = `The time is: ${currentTime}`;
+stopBtn.addEventListener('click', () => {
+  chrome.storage.local.set({ isRunning: false });
+});
 
-   chrome.storage.local.get(["timer"], ({ timer = 0 }) => {
-      timerElement.textContent = `The timer is at: ${timer} seconds`;
-   });
+resetBtn.addEventListener('click', () => {
+  chrome.storage.local.set({ timer: 0, isRunning: false });
+});
+
+chrome.storage.local.get(['timer'], ({ timer = 0 }) => {
+  timerElement.textContent = `The timer is at: ${timer} seconds`;
+});
+
+chrome.action.setBadgeText({ text: 'TIME' });
+
+chrome.storage.sync.get(['name'], ({ name = '???' }) => {
+  nameElement.textContent = `Your name is: ${name}`;
+});
+
+function popupContent() {
+  const currentTime = new Date().toLocaleTimeString();
+  timeElement.textContent = `The time is: ${currentTime}`;
+
+  chrome.storage.local.get(['timer'], ({ timer = 0 }) => {
+    timerElement.textContent = `The timer is at: ${timer} seconds`;
+  });
+
+  chrome.storage.local.get(['isRunning'], ({ isRunning = false }) => {
+    forDebugElement.textContent = `isRunning: ${isRunning}`;
+    if (isRunning) {
+      startBtn.style.display = 'none';
+      stopBtn.style.display = 'inline-block';
+    } else {
+      startBtn.style.display = 'inline-block';
+      stopBtn.style.display = 'none';
+    }
+  });
 }
 
-updateTimeElements();
-setInterval(updateTimeElements, 1000);
+popupContent();
+setInterval(popupContent, 1000);
